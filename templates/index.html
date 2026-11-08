@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MarginTracker - Control de Inventario y Márgenes</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+
+    <nav class="navbar navbar-dark bg-dark shadow-sm">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="#">📊 MarginTracker</a>
+        </div>
+    </nav>
+
+    <div class="container my-5">
+        <!-- Sección de Importación y Plantilla -->
+        <div class="row mb-4">
+            <div class="col-md-7">
+                <div class="card shadow-sm h-100">
+                    <div class="card-body">
+                        <h5 class="card-title mb-3">📁 Importar Base de Datos (Excel / CSV)</h5>
+                        <form action="/importar" method="POST" enctype="multipart/form-data" class="d-flex align-items-center gap-2 mb-2">
+                            <input type="file" class="form-control" name="archivo" accept=".csv, .xlsx, .xls" required>
+                            <button type="submit" class="btn btn-secondary text-nowrap">Subir Archivo</button>
+                        </form>
+                        <div class="text-end">
+                            <a href="/descargar-plantilla" class="text-decoration-none small">📥 Descargar plantilla Excel en blanco</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-5 d-flex align-items-center justify-content-end">
+                <a href="/registrar" class="btn btn-success btn-lg w-100 py-3 shadow-sm">➕ Registrar Producto Manualmente</a>
+            </div>
+        </div>
+
+        <!-- Dashboard Placeholder (Looker Studio) -->
+        <div class="card shadow-sm mb-5 border-primary">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">📈 Dashboard Analítico (Looker Studio)</h5>
+            </div>
+            <div class="card-body text-center py-4 bg-white">
+                <div class="text-muted">
+                    <div class="container my-4">
+    <h2 class="mb-3 text-center">Panel de Control y Márgenes</h2>
+    
+    <!-- Contenedor responsive para el iframe de Looker Studio -->
+    <div class="ratio ratio-16x9 shadow-sm rounded overflow-hidden">
+        <iframe src="<div class="container my-4">
+    <h2 class="mb-3 text-center">Panel de Control y Márgenes</h2>
+    
+    <!-- Contenedor responsive para el iframe de Looker Studio -->
+    <div class="ratio ratio-16x9 shadow-sm rounded overflow-hidden">
+        <iframe src="https://datastudio.google.com/embed/reporting/070752ee-5cd0-4eda-8761-b78dbeea13a4/page/GD4BG" frameborder="0" style="border:0" allowfullscreen sandbox="allow-storage-access-by-user-activation allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox" 
+                style="border:0;" 
+                allowfullscreen 
+                loading="lazy">
+        </iframe>
+    </div>
+</div>" 
+                style="border:0;" 
+                allowfullscreen 
+                loading="lazy">
+        </iframe>
+    </div>
+</div>
+                    <h5>Visualización de Márgenes y Rentabilidad</h5>
+                    <p class="mb-0">Los gráficos interactivos se cargarán automáticamente aquí al conectar tu base de datos a Looker Studio.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Formulario para acciones masivas sobre la tabla -->
+        <form action="/eliminar-seleccionados" method="POST" id="form-tabla">
+            <div class="card shadow-sm">
+                <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0">Inventario de Productos</h4>
+                    <div>
+                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('¿Estás seguro de eliminar los productos seleccionados?');">🗑️ Eliminar Seleccionados</button>
+                        <button type="submit" formaction="/eliminar-todos" class="btn btn-outline-light btn-sm ms-2" onclick="return confirm('⚠️ ATENCIÓN: ¿Estás seguro de eliminar TODOS los registros de la base de datos?');">⚠️ Borrar Todo</button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>
+                                        <input type="checkbox" id="select-all" class="form-check-input">
+                                    </th>
+                                    <th>ID</th>
+                                    <th>Nombre</th>
+                                    <th>Categoría</th>
+                                    <th>Stock</th>
+                                    <th>Costo</th>
+                                    <th>Venta</th>
+                                    <th>Impuestos</th>
+                                    <th>Envíos</th>
+                                    <th>Margen Neto</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% if productos %}
+                                    {% for prod in productos %}
+                                    <tr>
+                                        <td>
+                                            <input type="checkbox" name="ids" value="{{ prod.id }}" class="form-check-input row-checkbox">
+                                        </td>
+                                        <td>{{ prod.id }}</td>
+                                        <td class="fw-semibold">{{ prod.nombre }}</td>
+                                        <td><span class="badge bg-secondary">{{ prod.categoria }}</span></td>
+                                        <td>{{ prod.stock }}</td>
+                                        <td>${{ prod.precio_costo }}</td>
+                                        <td>${{ prod.precio_venta }}</td>
+                                        <td>${{ prod.impuestos }}</td>
+                                        <td>${{ prod.envios }}</td>
+                                        <td>
+                                            <span class="badge bg-success">
+                                                ${{ prod.margen_neto }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <a href="/editar/{{ prod.id }}" class="btn btn-sm btn-warning">✏️</a>
+                                            <a href="/eliminar/{{ prod.id }}" class="btn btn-sm btn-danger" onclick="return confirm('¿Estás seguro de eliminar este producto?');">🗑️</a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                {% else %}
+                                    <tr>
+                                        <td colspan="11" class="text-center text-muted py-4">
+                                            No hay productos registrados. Descarga la plantilla, completa tus datos y súbelos para comenzar.
+                                        </td>
+                                    </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Script para seleccionar/deseleccionar todos los checkboxes -->
+    <script>
+        document.getElementById('select-all').addEventListener('change', function(e) {
+            const checkboxes = document.querySelectorAll('.row-checkbox');
+            checkboxes.forEach(cb => cb.checked = e.target.checked);
+        });
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
