@@ -1,6 +1,7 @@
 import os
 import io
 import pandas as pd
+from urllib.parse import urlparse
 from flask import Flask, render_template, request, redirect, url_for, send_file
 from dotenv import load_dotenv
 import pymysql
@@ -11,76 +12,65 @@ load_dotenv()
 
 app = Flask(__name__)
 
-# Función para conectar a la base de datos MySQL en Aiven
+# Configuración automática de la base de datos (Compatible con local y Render/Aiven)
+database_url = os.environ.get('DATABASE_URL')
+
+if database_url:
+    url = urlparse(database_url)
+    DB_HOST = url.hostname
+    DB_USER = url.username
+    DB_PASSWORD = url.password
+    DB_NAME = url.path[1:]
+    DB_PORT = url.port or 3306
+else:
+    # Respaldo por si mantienes tus variables separadas localmente
+    DB_HOST = os.environ.get('DB_HOST', 'localhost')
+    DB_USER = os.environ.get('DB_USER', 'root')
+    DB_PASSWORD = os.environ.get('DB_PASSWORD', '')
+    DB_NAME = os.environ.get('DB_NAME', 'defaultdb')
+    DB_PORT = int(os.environ.get('DB_PORT', 3306))
+
 def get_db_connection():
-    url = os.getenv("DATABASE_URL")
-    
-    if url.startswith("mysql+pymysql://"):
-        url = url.replace("mysql+pymysql://", "")
-    elif url.startswith("mysql://"):
-        url = url.replace("mysql://", "")
-        
-    user_pass, host_db = url.split("@")
-    user, password = user_pass.split(":")
-    host_port, db_name_and_params = host_db.split("/")
-    
-    # Limpiar parámetros extra en la URL (como ?ssl-mode=REQUIRED)
-    if "?" in db_name_and_params:
-        db_name = db_name_and_params.split("?")[0]
-    else:
-        db_name = db_name_and_params
-    
-    if ":" in host_port:
-        host, port = host_port.split(":")
-        port = int(port)
-    else:
-        host = host_port
-        port = 3306
-
-    # Conexión con soporte SSL requerido por Aiven
-    conn = pymysql.connect(
-        host=host,
-        port=port,
-        user=user,
-        password=password,
-        database=db_name,
+    return pymysql.connect(
+        host=DB_HOST,
+        user=DB_USER,
+        password=DB_PASSWORD,
+        database=DB_NAME,
+        port=DB_PORT,
         cursorclass=DictCursor,
-        ssl={"ssl": {}}  # Configuración SSL requerida para servidores en la nube como Aiven
+        ssl={'ssl': {}}  # Esencial para que Aiven acepte la conexión segura
     )
-    return conn
 
-# Inicializar la tabla en MySQL si no existe
 def init_db():
+    """Crea la tabla de productos automáticamente si no existe en la base de datos con todas sus columnas."""
     conn = get_db_connection()
-    cur = conn.cursor()
-    cur.execute("""
-        CREATE TABLE IF NOT EXISTS productos (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            nombre VARCHAR(150) NOT NULL,
-            categoria VARCHAR(100) NOT NULL,
-            stock INT NOT NULL DEFAULT 0,
-            precio_costo DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
-            precio_venta DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
-            impuestos DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
-            envios DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
-            margen_neto DECIMAL(10, 2) GENERATED ALWAYS AS (
-                precio_venta - (precio_costo + impuestos + envios)
-            ) STORED
-        );
-    """)
-    conn.commit()
-    cur.close()
-    conn.close()
+    try:
+        with conn.cursor() as cursor:
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS productos (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    nombre VARCHAR(255) NOT NULL,
+                    categoria VARCHAR(100) DEFAULT 'General',
+                    stock INT NOT NULL,
+                    precio_costo DECIMAL(10, 2) NOT NULL,
+                    precio_venta DECIMAL(10, 2) NOT NULL,
+                    impuestos DECIMAL(10, 2) DEFAULT 0.0,
+                    envios DECIMAL(10, 2) DEFAULT 0.0
+                )
+            """)
+        conn.commit()
+    finally:
+        conn.close()
 
-# Ejecutar la creación de la tabla al arrancar
-with app.app_context():
-    init_db()
+# Ejecutar la inicialización de la base de datos al arrancar la app
+init_db()
 
 @app.route('/')
 def index():
+    """Ruta principal: Muestra el listado de productos en la pantalla principal."""
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute("SELECT * FROM productos;")
+    cur.execute("SELECT * FROM productos")
     productos = cur.fetchall()
     cur.close()
     conn.close()
