@@ -36,28 +36,6 @@
             </div>
         </div>
 
-        <!-- Dashboard Analítico (Looker Studio) -->
-        <div class="card shadow-sm mb-5 border-primary">
-            <div class="card-header bg-primary text-white">
-                <h5 class="mb-0">📈 Dashboard Analítico (Looker Studio)</h5>
-            </div>
-            <div class="card-body p-4 bg-white">
-                <h2 class="mb-3 text-center">Panel de Control y Márgenes</h2>
-                
-                <!-- Contenedor responsive para el iframe de Looker Studio -->
-                <div class="ratio ratio-16x9 shadow-sm rounded overflow-hidden">
-                    <iframe src="https://datastudio.google.com/embed/reporting/ddcec86a-642d-4a3c-b52b-f2c855708a04/page/page_12345"
-                            frameborder="0" 
-                            style="border:0;" 
-                            allowfullscreen 
-                            sandbox="allow-storage-access-by-user-activation allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"
-                            loading="lazy">
-                            </iframe>" 
-                    </iframe>
-                </div>
-            </div>
-        </div>
-
         <!-- Formulario para acciones masivas sobre la tabla -->
         <form action="/eliminar-seleccionados" method="POST" id="form-tabla">
             <div class="card shadow-sm">
@@ -126,6 +104,28 @@
                     </div>
                 </div>
             </div>
+            <!-- Dashboard Analítico (Looker Studio) -->
+        <div class="card shadow-sm mb-5 border-primary">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">📈 Dashboard Analítico (Looker Studio)</h5>
+            </div>
+            <div class="card-body p-4 bg-white">
+                <h2 class="mb-3 text-center">Panel de Control y Márgenes</h2>
+                
+                <!-- Contenedor responsive para el iframe de Looker Studio -->
+                <div class="ratio ratio-16x9 shadow-sm rounded overflow-hidden">
+                    <iframe src="https://datastudio.google.com/embed/reporting/ddcec86a-642d-4a3c-b52b-f2c855708a04/page/page_12345"
+                            frameborder="0" 
+                            style="border:0;" 
+                            allowfullscreen 
+                            sandbox="allow-storage-access-by-user-activation allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"
+                            loading="lazy">
+                            </iframe>" 
+                    </iframe>
+                </div>
+            </div>
+        </div>
+
         </form>
     </div>
 
