@@ -4,139 +4,328 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MarginTracker - Control de Inventario y Márgenes</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome para iconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts (Inter) -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #060913; /* Fondo general aún más oscuro */
+            color: #f8fafc;
+            min-height: 100vh;
+        }
+        .navbar {
+            background-color: #060913 !important;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .navbar-brand, .nav-link {
+            color: #ffffff !important;
+        }
+        /* Tarjetas con efecto de movimiento */
+        .feature-card {
+            background-color: #0f172a;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 1rem;
+            transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+        }
+        .feature-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6);
+            border-color: rgba(56, 189, 248, 0.5);
+        }
+        /* Contenedor principal estilo SaaS Oscuro */
+        .saas-container {
+            background-color: #0f172a !important; /* Fondo oscuro profundo */
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 1rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+        }
+        /* Forzar fondo oscuro en la tabla y evitar blancos de Bootstrap */
+        .table {
+            color: #f8fafc !important;
+            background-color: transparent !important;
+        }
+        .table th {
+            background-color: #090d16 !important;
+            color: #94a3b8 !important;
+            font-weight: 600;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+            padding: 1rem;
+        }
+        .table td {
+            background-color: #0f172a !important; /* Fondo oscuro por celda */
+            padding: 1rem;
+            vertical-align: middle;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+            color: #e2e8f0 !important;
+        }
+        .table-hover tbody tr:hover td {
+            background-color: #1e293b !important; /* Color al pasar el cursor */
+            color: #ffffff !important;
+        }
+        .badge-step {
+            background-color: #38bdf8;
+            color: #060913;
+            font-weight: 700;
+            font-size: 0.75rem;
+            padding: 0.35rem 0.75rem;
+            border-radius: 2rem;
+        }
+        .btn-glow {
+            background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%);
+            border: none;
+            color: #ffffff;
+            font-weight: 600;
+            transition: opacity 0.2s;
+        }
+        .btn-glow:hover {
+            opacity: 0.9;
+            color: #ffffff;
+        }
+        .form-control, .form-select {
+            background-color: #060913;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #ffffff;
+        }
+        .form-control:focus {
+            background-color: #060913;
+            border-color: #38bdf8;
+            color: #ffffff;
+            box-shadow: 0 0 0 0.25rem rgba(56, 189, 248, 0.25);
+        }
+        .text-custom-muted {
+            color: #94a3b8 !important;
+        }
+        .badge-margen {
+            background-color: rgba(34, 197, 94, 0.2) !important;
+            color: #4ade80 !important;
+            border: 1px solid rgba(74, 222, 128, 0.3);
+        }
+        .card-footer {
+            background-color: #0f172a !important;
+            border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
+        }
+    </style>
 </head>
-<body class="bg-light">
+<body>
 
-    <nav class="navbar navbar-dark bg-dark shadow-sm">
-        <div class="container">
-            <a class="navbar-brand fw-bold" href="#">📊 MarginTracker</a>
+    <!-- Navbar Superior -->
+    <nav class="navbar navbar-expand-lg py-3 px-4">
+        <div class="container-fluid">
+            <a class="navbar-brand d-flex align-items-center gap-2 fw-bold fs-4" href="#">
+                <!-- Icono personalizado estilo dispositivo con gráficos y signo dolar -->
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="5" y="2" width="14" height="20" rx="2" stroke="url(#paint0_linear)" stroke-width="2"/>
+                    <path d="M8 8H10V14H8V8Z" fill="#38bdf8"/>
+                    <path d="M11 11H13V14H11V11Z" fill="#38bdf8"/>
+                    <path d="M14 6H16V14H14V6Z" fill="#38bdf8"/>
+                    <path d="M8 17H16" stroke="#38bdf8" stroke-width="1.5" stroke-linecap="round"/>
+                </svg>
+                <defs>
+                    <linearGradient id="paint0_linear" x1="5" y1="2" x2="19" y2="22" gradientUnits="userSpaceOnUse">
+                        <stop stop-color="#facc15"/>
+                        <stop offset="1" stop-color="#38bdf8"/>
+                    </linearGradient>
+                </defs>
+                <span class="text-white">MarginTracker</span>
+            </a>
+            <div class="d-flex align-items-center gap-3">
+                <span class="text-custom-muted small d-none d-md-inline">Control operativo y analíticas de rentabilidad</span>
+            </div>
         </div>
     </nav>
 
-    <div class="container my-5">
-        <!-- Sección de Importación y Plantilla -->
-        <div class="row mb-4">
-            <div class="col-md-7">
-                <div class="card shadow-sm h-100">
-                    <div class="card-body">
-                        <h5 class="card-title mb-3">📁 Importar Base de Datos (Excel / CSV)</h5>
-                        <form action="/importar" method="POST" enctype="multipart/form-data" class="d-flex align-items-center gap-2 mb-2">
-                            <input type="file" class="form-control" name="archivo" accept=".csv, .xlsx, .xls" required>
-                            <button type="submit" class="btn btn-secondary text-nowrap">Subir Archivo</button>
-                        </form>
-                        <div class="text-end">
-                            <a href="/descargar-plantilla" class="text-decoration-none small">📥 Descargar plantilla Excel en blanco</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-5 d-flex align-items-center justify-content-end">
-                <a href="/registrar" class="btn btn-success btn-lg w-100 py-3 shadow-sm">➕ Registrar Producto Manualmente</a>
-            </div>
-        </div>
-
-        <!-- Formulario para acciones masivas sobre la tabla -->
-        <form action="/eliminar-seleccionados" method="POST" id="form-tabla">
-            <div class="card shadow-sm">
-                <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
-                    <h4 class="mb-0">Inventario de Productos</h4>
+    <!-- Contenido Principal con Espaciado Amplio -->
+    <div class="container py-5">
+        
+        <!-- Tarjetas Explicativas Interactivas -->
+        <div class="row g-4 mb-5">
+            <!-- Tarjeta 1: Agregar Productos -->
+            <div class="col-md-4">
+                <div class="feature-card p-4 h-100 d-flex flex-column justify-content-between">
                     <div>
-                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('¿Estás seguro de eliminar los productos seleccionados?');">🗑️ Eliminar Seleccionados</button>
-                        <button type="submit" formaction="/eliminar-todos" class="btn btn-outline-light btn-sm ms-2" onclick="return confirm('⚠️ ATENCIÓN: ¿Estás seguro de eliminar TODOS los registros de la base de datos?');">⚠️ Borrar Todo</button>
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <span class="badge-step">Paso 01</span>
+                            <i class="fa-solid fa-circle-plus fs-4 text-info"></i>
+                        </div>
+                        <h5 class="fw-bold text-white mb-2">Agregar Productos</h5>
+                        <p class="text-custom-muted small mb-3">Ingresa tus artículos manualmente de forma rápida y detallada utilizando el formulario de alta de productos.</p>
                     </div>
-                </div>
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table table-hover align-middle">
-                            <thead class="table-dark">
-                                <tr>
-                                    <th>
-                                        <input type="checkbox" id="select-all" class="form-check-input">
-                                    </th>
-                                    <th>ID</th>
-                                    <th>Nombre</th>
-                                    <th>Categoría</th>
-                                    <th>Stock</th>
-                                    <th>Costo</th>
-                                    <th>Venta</th>
-                                    <th>Impuestos</th>
-                                    <th>Envíos</th>
-                                    <th>Margen Neto</th>
-                                    <th>Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% if productos %}
-                                    {% for prod in productos %}
-                                    <tr>
-                                        <td>
-                                            <input type="checkbox" name="ids" value="{{ prod.id }}" class="form-check-input row-checkbox">
-                                        </td>
-                                        <td>{{ prod.id }}</td>
-                                        <td class="fw-semibold">{{ prod.nombre }}</td>
-                                        <td><span class="badge bg-secondary">{{ prod.categoria }}</span></td>
-                                        <td>{{ prod.stock }}</td>
-                                        <td>${{ prod.precio_costo }}</td>
-                                        <td>${{ prod.precio_venta }}</td>
-                                        <td>${{ prod.impuestos }}</td>
-                                        <td>${{ prod.envios }}</td>
-                                        <td>
-                                            <span class="badge bg-success">
-                                                ${{ prod.margen_neto }}
-                                            </span>
-                                        </td>
-                                        <td>
-                                            <a href="/editar/{{ prod.id }}" class="btn btn-sm btn-warning">✏️</a>
-                                            <a href="/eliminar/{{ prod.id }}" class="btn btn-sm btn-danger" onclick="return confirm('¿Estás seguro de eliminar este producto?');">🗑️</a>
-                                        </td>
-                                    </tr>
-                                    {% endfor %}
-                                {% else %}
-                                    <tr>
-                                        <td colspan="11" class="text-center text-muted py-4">
-                                            No hay productos registrados. Descarga la plantilla, completa tus datos y súbelos para comenzar.
-                                        </td>
-                                    </tr>
-                                {% endif %}
-                            </tbody>
-                        </table>
+                    <div>
+                        <a href="{{ url_for('registrar') }}" class="btn btn-glow btn-sm w-100 py-2">
+                            <i class="fa-solid fa-plus me-2"></i> Cargar Nuevo Producto
+                        </a>
                     </div>
                 </div>
             </div>
-            <!-- Dashboard Analítico (Looker Studio) -->
-        <div class="card shadow-sm mb-5 border-primary">
-            <div class="card-header bg-primary text-white">
-                <h5 class="mb-0">📈 Dashboard Analítico (Looker Studio)</h5>
+
+            <!-- Tarjeta 2: Importación Masiva y Plantilla Excel -->
+            <div class="col-md-4">
+                <div class="feature-card p-4 h-100 d-flex flex-column justify-content-between">
+                    <div>
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <span class="badge-step">Paso 02</span>
+                            <i class="fa-solid fa-file-excel fs-4 text-info"></i>
+                        </div>
+                        <h5 class="fw-bold text-white mb-2">Importación Masiva</h5>
+                        <p class="text-custom-muted small mb-2">Descarga la plantilla oficial en Excel, complétala con tus datos e impórtala para volcar todo tu inventario en segundos.</p>
+                    </div>
+                    <div class="d-flex flex-column gap-2 mt-3">
+                        <a href="{{ url_for('descargar_plantilla') }}" class="btn btn-outline-info btn-sm w-100 py-2">
+                            <i class="fa-solid fa-download me-2"></i> Descargar Plantilla Excel
+                        </a>
+                        <form action="{{ url_for('importar') }}" method="POST" enctype="multipart/form-data" class="d-flex flex-column gap-2">
+                            <input type="file" name="archivo" class="form-control form-control-sm" required title="Selecciona tu archivo Excel o CSV">
+                            <button type="submit" class="btn btn-outline-success btn-sm w-100 py-2">
+                                <i class="fa-solid fa-cloud-arrow-up me-2"></i> Procesar Importación
+                            </button>
+                        </form>
+                    </div>
+                </div>
             </div>
-            <div class="card-body p-4 bg-white">
-                <h2 class="mb-3 text-center">Panel de Control y Márgenes</h2>
-                
-                <!-- Contenedor responsive para el iframe de Looker Studio -->
-                <div class="ratio ratio-16x9 shadow-sm rounded overflow-hidden">
-                    <iframe src="https://datastudio.google.com/embed/reporting/ddcec86a-642d-4a3c-b52b-f2c855708a04/page/page_12345"
-                            frameborder="0" 
-                            style="border:0;" 
-                            allowfullscreen 
-                            sandbox="allow-storage-access-by-user-activation allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"
-                            loading="lazy">
-                            </iframe>" 
-                    </iframe>
+
+            <!-- Tarjeta 3: Margenes y BI (Data Studio) -->
+            <div class="col-md-4">
+                <div class="feature-card p-4 h-100 d-flex flex-column justify-content-between">
+                    <div>
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <span class="badge-step">Paso 03</span>
+                            <i class="fa-solid fa-chart-pie fs-4 text-info"></i>
+                        </div>
+                        <h5 class="fw-bold text-white mb-2">Márgenes y BI</h5>
+                        <p class="text-custom-muted small mb-3">Accede directamente al panel de analíticas de negocio en Data Studio para supervisar el rendimiento y rentabilidad general.</p>
+                    </div>
+                    <div>
+                        <a href="#bi-dashboard" class="btn btn-outline-light btn-sm w-100 py-2">
+                            <i class="fa-solid fa-arrow-down me-2"></i> Ver Panel Analíticas
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
 
-        </form>
+        <!-- SECCIÓN DEL DASHBOARD E INVENTARIO -->
+        <div class="saas-container p-4 mb-5">
+            <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
+                <div>
+                    <h3 class="fw-bold text-white mb-1"><i class="fa-solid fa-boxes-stacked me-2 text-info"></i> Dashboard de Inventario</h3>
+                    <p class="text-custom-muted small mb-0">Gestiona, edita y supervisa la rentabilidad neta de tus artículos en tiempo real.</p>
+                </div>
+                
+                <div class="d-flex gap-2">
+                    <button type="submit" form="tabla-form" formaction="{{ url_for('eliminar_seleccionados') }}" class="btn btn-outline-danger btn-sm px-3" onclick="return confirm('¿Eliminar los productos seleccionados?');">
+                        <i class="fa-solid fa-trash-can me-1"></i> Eliminar Selección
+                    </button>
+                    <button type="submit" form="tabla-form" formaction="{{ url_for('eliminar_todos') }}" class="btn btn-danger btn-sm px-3" onclick="return confirm('¡ATENCIÓN! ¿Vaciar todo el inventario?');">
+                        <i class="fa-solid fa-triangle-exclamation me-1"></i> Vaciar Todo
+                    </button>
+                </div>
+            </div>
+
+            <form id="tabla-form" method="POST">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th class="ps-4" style="width: 40px;">
+                                    <input type="checkbox" class="form-check-input" id="select-all">
+                                </th>
+                                <th>ID</th>
+                                <th>Nombre</th>
+                                <th>Categoría</th>
+                                <th>Stock</th>
+                                <th>Costo</th>
+                                <th>Venta</th>
+                                <th>Impuestos</th>
+                                <th>Envíos</th>
+                                <th>Margen Neto</th>
+                                <th class="text-end pe-4">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% if productos %}
+                                {% for p in productos %}
+                                <tr>
+                                    <td class="ps-4">
+                                        <input type="checkbox" name="ids" value="{{ p.id }}" class="form-check-input product-checkbox">
+                                    </td>
+                                    <td class="text-custom-muted fw-semibold">#{{ p.id }}</td>
+                                    <td class="fw-bold text-white">{{ p.nombre }}</td>
+                                    <td><span class="badge bg-secondary bg-opacity-25 text-info px-2 py-1">{{ p.categoria }}</span></td>
+                                    <td>
+                                        <span class="badge {% if p.stock < 5 %}bg-danger{% else %}bg-success{% endif %} bg-opacity-25 text-{% if p.stock < 5 %}danger{% else %}success{% endif %} px-2 py-1 fw-semibold">
+                                            {{ p.stock }} un.
+                                        </span>
+                                    </td>
+                                    <td class="text-custom-muted">${{ "%.2f"|format(p.precio_costo) }}</td>
+                                    <td class="fw-semibold text-white">${{ "%.2f"|format(p.precio_venta) }}</td>
+                                    <td class="text-custom-muted">${{ "%.2f"|format(p.impuestos) }}</td>
+                                    <td class="text-custom-muted">${{ "%.2f"|format(p.envios) }}</td>
+                                    <td>
+                                        {% set margen = p.precio_venta - p.precio_costo - p.impuestos - p.envios %}
+                                        <span class="fw-bold badge-margen px-2 py-1 rounded">
+                                            ${{ "%.2f"|format(margen) }}
+                                        </span>
+                                    </td>
+                                    <td class="text-end pe-4">
+                                        <div class="d-inline-flex gap-2">
+                                            <a href="{{ url_for('editar', id=p.id) }}" class="btn btn-dark btn-sm text-warning border border-secondary" title="Editar">
+                                                <i class="fa-solid fa-pen"></i>
+                                            </a>
+                                            <a href="{{ url_for('eliminar', id=p.id) }}" class="btn btn-dark btn-sm text-danger border border-secondary" title="Eliminar" onclick="return confirm('¿Estás seguro de eliminar este producto?');">
+                                                <i class="fa-solid fa-trash"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="11" class="text-center py-5 text-custom-muted">
+                                        <i class="fa-solid fa-folder-open fa-3x mb-3 text-secondary"></i>
+                                        <p class="mb-0 fs-5">No hay productos registrados en el inventario.</p>
+                                        <small class="text-custom-muted">Usa las tarjetas superiores para agregar un producto o importar tu planilla Excel.</small>
+                                    </td>
+                                </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </form>
+        </div>
+
+        <!-- SECCIÓN DE ANALÍTICAS / DATA STUDIO -->
+        <div id="bi-dashboard" class="saas-container p-4">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h3 class="fw-bold text-white mb-1"><i class="fa-solid fa-chart-pie me-2 text-info"></i> Panel Analíticas de Negocio (Data Studio)</h3>
+                    <p class="text-custom-muted small mb-0">Tablero gerencial integrado para el monitoreo de rendimiento comercial.</p>
+                </div>
+            </div>
+            <!-- Contenedor Responsive para el Tablero de Data Studio -->
+            <div class="ratio ratio-16x9 rounded overflow-hidden border border-secondary border-opacity-25">
+                <iframe src="https://lookerstudio.google.com/embed/reporting/TU_ID_DE_INFORME/page/TU_PAGINA" 
+                        style="border:0;" 
+                        allowfullscreen 
+                        sandbox="allow-storage-access-by-user-activation allow-scripts allow-same-origin allow-popups allow-popups-to-sandbox-by-top-navigation">
+                </iframe>
+            </div>
+        </div>
+
     </div>
 
-    <!-- Script para seleccionar/deseleccionar todos los checkboxes -->
+    <!-- Script para seleccionar todos los checkboxes -->
     <script>
-        document.getElementById('select-all').addEventListener('change', function(e) {
-            const checkboxes = document.querySelectorAll('.row-checkbox');
+        document.getElementById('select-all').addEventListener('click', function(e) {
+            let checkboxes = document.querySelectorAll('.product-checkbox');
             checkboxes.forEach(cb => cb.checked = e.target.checked);
         });
     </script>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
